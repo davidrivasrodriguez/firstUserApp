@@ -2,28 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Middleware\AdminMiddleware;
-use App\Http\Middleware\SuperAdminMiddleware;
 use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
-class AdministratorsController extends Controller
+class UserController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(AdminMiddleware::class);
-        $this->middleware(SuperAdminMiddleware::class)->only('indexSuper');
+        $this->middleware('auth');
     }
 
     public function index()
     {
-        $users = User::where('id', '<>', 1)->orderBy('name')->get();
-        return view('users.index', compact('users'));
-    }
-
-    public function indexSuper()
-    {
-        $users = User::orderBy('name')->get();
+        $users = User::all();
         return view('users.index', compact('users'));
     }
 
@@ -48,7 +40,7 @@ class AdministratorsController extends Controller
             'role' => $request->role,
         ]);
 
-        return redirect()->route('users.index');
+        return redirect()->route('admin.users.index');
     }
 
     public function edit(User $user)
@@ -71,7 +63,7 @@ class AdministratorsController extends Controller
         }
         $user->save();
 
-        return redirect()->route('users.index');
+        return redirect()->route('admin.users.index');
     }
 
     public function destroy(User $user)
@@ -79,6 +71,6 @@ class AdministratorsController extends Controller
         if ($user->id != 1) {
             $user->delete();
         }
-        return redirect()->route('users.index');
+        return redirect()->route('admin.users.index');
     }
 }
