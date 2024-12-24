@@ -28,10 +28,16 @@
                                     <td>{{ $user->email }}</td>
                                     <td>{{ $user->role }}</td>
                                     <td>
-                                        @if (Auth::user()->role == 'admin' || Auth::user()->role == 'superadmin')
+                                        @if (Auth::user()->role == 'superadmin' || (Auth::user()->role == 'admin' && $user->role != 'superadmin'))
                                             <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-warning">Edit</a>
                                             @if (Auth::user()->role == 'superadmin' && $user->id != 1)
-                                                <form action="{{ route('users.destroy', $user) }}" method="POST" style="display:inline;">
+                                                <form action="{{ route('admin.users.destroy', $user) }}" method="POST" style="display:inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                                </form>
+                                            @elseif (Auth::user()->role == 'admin' && $user->role != 'superadmin')
+                                                <form action="{{ route('admin.users.destroy', $user) }}" method="POST" style="display:inline;">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-danger">Delete</button>

@@ -35,7 +35,10 @@ class ProfileController extends Controller
         }
 
         $user->name = $request->name;
-        $user->email = $request->email;
+        if ($user->email !== $request->email) {
+            $user->email = $request->email;
+            $user->email_verified_at = null; // Mark email as not verified
+        }
         $user->save();
 
         return back()->with('status', 'Profile updated successfully');

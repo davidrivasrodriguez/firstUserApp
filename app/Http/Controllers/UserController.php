@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -36,7 +37,7 @@ class UserController extends Controller
         User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+            'password' => Hash::make($request->password),
             'role' => $request->role,
         ]);
 
@@ -45,21 +46,33 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
+        if (Auth::user()->role == 'admin' && $user->role == 'superadmin') {
+            return redirect()->route('admin.users.index')->withErrors(['error' => 'You cannot edit the superadmin.']);
+        }
+
         return view('users.edit', compact('user'));
     }
 
     public function update(Request $request, User $user)
     {
+        if (Auth::user()->role == 'admin' && $user->role == 'superadmin') {
+            return redirect()->route('admin.users.index')->withErrors(['error' => 'You cannot update the superadmin.']);
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
+            'role' => 'required|string|in:admin,user',
         ]);
 
         $user->name = $request->name;
         $user->email = $request->email;
         if ($request->filled('password')) {
-            $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+            $user->password = Hash::make($request->password);
+        }
+        if (Auth::user()->id != $user->id && $user->id != 1) {
+            $user->role = $request->role;
         }
         $user->save();
 
@@ -68,6 +81,10 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+        if ($user->id == Auth::id()) {
+            return redirect()->route('admin.users.index')->withErrors(['error' => 'You cannot delete yourself.']);
+        }
+
         if ($user->id != 1) {
             $user->delete();
         }

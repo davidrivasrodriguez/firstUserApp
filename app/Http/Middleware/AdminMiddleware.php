@@ -18,11 +18,11 @@ class AdminMiddleware
     {
         $user = Auth::user();
 
-        if ($user==null) {
+        if ($user == null) {
             return redirect()->route('index');
         }
 
-        if ($user->role != 'admin') {
+        if ($user->role != 'admin' && $user->role != 'superadmin') {
             return redirect()->route('home');
         }
 

@@ -18,7 +18,7 @@ class SuperAdminMiddleware
     {
         $user = Auth::user();
 
-        if ($user==null) {
+        if ($user == null) {
             return redirect()->route('index');
         }
 
