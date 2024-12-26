@@ -6,7 +6,6 @@ This is a project based on the Laravel framework. It includes functionalities fo
 
 - PHP >= 8.2
 - Composer
-- Node.js and npm
 
 ## Installation
 
@@ -14,8 +13,8 @@ Follow these steps to install and set up the project:
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/your-username/your-repository.git
-    cd your-repository
+    git clone https://github.com/davidrivasrodriguez/firstUserApp
+    cd firstUserApp
     ```
 
 2. Install PHP dependencies:
