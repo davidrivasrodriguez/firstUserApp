@@ -14,8 +14,21 @@
                     @endif
 
                     <!-- Form to change username and email -->
-                    <form method="POST" action="{{ route('profile.updateNameAndEmail') }}">
+                    <form method="POST" action="{{ route('profile.updateNameAndEmail') }}" enctype="multipart/form-data">
                         @csrf
+                        <div class="row mb-3">
+                            <label for="profile_photo" class="col-md-4 col-form-label text-md-end">Profile Photo</label>
+                            <div class="col-md-6">
+                                <img src="{{ asset('storage/profileImages/' . Auth::user()->profile_photo) }}" alt="Profile Photo" width="100" height="100">
+                                <input id="profile_photo" type="file" class="form-control @error('profile_photo') is-invalid @enderror" name="profile_photo">
+                                @error('profile_photo')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
                         <div class="row mb-3">
                             <label for="name" class="col-md-4 col-form-label text-md-end">Username</label>
                             <div class="col-md-6">

@@ -53,29 +53,54 @@ class UserController extends Controller
         return view('users.edit', compact('user'));
     }
 
+
     public function update(Request $request, User $user)
     {
-        if (Auth::user()->role == 'admin' && $user->role == 'superadmin') {
-            return redirect()->route('admin.users.index')->withErrors(['error' => 'You cannot update the superadmin.']);
-        }
-
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
-            'role' => 'required|string|in:admin,user',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+    
 
+        if ($request->has('remove_photo') && $request->remove_photo == 1) {
+            if ($user->profile_photo) {
+                $oldPhotoPath = storage_path('app/profileImages/' . $user->profile_photo);
+                if (file_exists($oldPhotoPath)) {
+                    unlink($oldPhotoPath);
+                }
+            }
+            $user->profile_photo = null;
+        }
+        
+        if ($request->hasFile('profile_photo')) {
+            $imageName = time().'.'.$request->profile_photo->extension();
+            $filePath = $request->profile_photo->storeAs('profileImages', $imageName);
+        
+            $fullPath = storage_path('app/' . $filePath);
+            if (file_exists($fullPath)) {
+                chmod($fullPath, 0644); 
+                chown($fullPath, 'www-data'); 
+            }
+        
+            if ($user->profile_photo) {
+                $oldPhotoPath = storage_path('app/profileImages/' . $user->profile_photo);
+                if (file_exists($oldPhotoPath)) {
+                    unlink($oldPhotoPath);
+                }
+            }
+        
+            $user->profile_photo = $imageName;
+        }
+        
         $user->name = $request->name;
         $user->email = $request->email;
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }
-        if (Auth::user()->id != $user->id && $user->id != 1) {
-            $user->role = $request->role;
-        }
         $user->save();
-
+        
         return redirect()->route('admin.users.index');
     }
 

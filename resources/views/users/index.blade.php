@@ -13,21 +13,29 @@
                         </div>
                     @endif
                     <table class="table mt-3">
-                        <thead>
+                    <thead>
+                        <tr>
+                            <th>Profile Photo</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($users as $user)
                             <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($users as $user)
-                                <tr>
-                                    <td>{{ $user->name }}</td>
-                                    <td>{{ $user->email }}</td>
-                                    <td>{{ $user->role }}</td>
-                                    <td>
+                                <td>
+                                    @if ($user->profile_photo)
+                                        <img src="{{ asset('storage/profileImages/' . $user->profile_photo) }}" alt="Profile Photo" width="50" height="50">
+                                    @else
+                                        No Photo
+                                    @endif
+                                </td>
+                                <td>{{ $user->name }}</td>
+                                <td>{{ $user->email }}</td>
+                                <td>{{ $user->role }}</td>
+                                <td>
                                         @if (Auth::user()->role == 'superadmin' || (Auth::user()->role == 'admin' && $user->role != 'superadmin'))
                                             <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-warning">Edit</a>
                                             @if (Auth::user()->role == 'superadmin' && $user->id != 1)
