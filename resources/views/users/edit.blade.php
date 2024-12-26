@@ -15,15 +15,15 @@
                         <div class="col-md-6">
                             @if ($user->profile_photo)
                                 <img src="{{ asset('storage/profileImages/' . $user->profile_photo) }}" alt="Profile Photo" width="100" height="100"><br>
-                                <input type="checkbox" id="remove_photo" name="remove_photo" value="1"> Remove Photo
+                                <!-- <input type="checkbox" id="remove_photo" name="remove_photo" value="1"> Remove Photo -->
                             @endif
-                            <input id="profile_photo" type="file" class="form-control @error('profile_photo') is-invalid @enderror" name="profile_photo">
+                            <!-- <input id="profile_photo" type="file" class="form-control @error('profile_photo') is-invalid @enderror" name="profile_photo">
                             @error('profile_photo')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
                                 </span>
                             @enderror
-                        </div>
+                        </div> -->
                     </div>
                     <div class="row mb-3">
                         <label for="email" class="col-md-4 col-form-label text-md-end">Email</label>
