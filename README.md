@@ -1,4 +1,4 @@
-# Laravel Project
+# User Management
 
 This is a project based on the Laravel framework. It includes functionalities for user management, authentication, and more.
 
