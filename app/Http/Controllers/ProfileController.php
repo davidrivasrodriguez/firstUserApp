@@ -71,7 +71,14 @@ class ProfileController extends Controller
             return back()->withErrors(['current_password_password' => 'The current password is incorrect']);
         }
 
-        $user->password = Hash::make($request->new_password);
+        if ($request->filled('new_password')) {
+            $user->password = Hash::make($request->new_password);
+            
+            $user->email_verified_at = null;
+            
+            $user->sendEmailVerificationNotification();
+        }
+
         $user->save();
 
         return back()->with('status', 'Password updated successfully');
@@ -97,8 +104,13 @@ class ProfileController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
 
+
         if ($request->filled('new_password')) {
             $user->password = Hash::make($request->new_password);
+            
+            $user->email_verified_at = null;
+            
+            $user->sendEmailVerificationNotification();
         }
 
         $user->save();

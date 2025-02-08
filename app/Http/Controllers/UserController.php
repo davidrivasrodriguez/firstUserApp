@@ -54,55 +54,49 @@ class UserController extends Controller
     }
 
 
-    public function update(Request $request, User $user)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:8|confirmed',
-            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
-    
+        public function update(Request $request, User $user)
+        {
+            try {
+                $request->validate([
+                    'name' => 'required|string|max:255',
+                    'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+                    'password' => 'nullable|string|min:8|confirmed',
+                    'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                    'role' => 'nullable|string|in:user,admin,superadmin',
+                ]);
+        
+                $user->name = $request->name;
+                $user->email = $request->email;
+                
+                if ($request->has('role') && auth()->user()->role == 'superadmin') {
+                    $user->role = $request->role;
+                }
+            
+                if ($request->filled('password')) {
+                    $user->password = Hash::make($request->password);
 
-        if ($request->has('remove_photo') && $request->remove_photo == 1) {
-            if ($user->profile_photo) {
-                $oldPhotoPath = storage_path('app/profileImages/' . $user->profile_photo);
-                if (file_exists($oldPhotoPath)) {
-                    unlink($oldPhotoPath);
+                    $user->email_verified_at = null;
+
+                    $user->sendEmailVerificationNotification();
                 }
+            
+
+                $user->save();
+        
+                return redirect()->route('admin.users.index')
+                    ->with('success', 'Usuario actualizado correctamente');
+        
+            } catch (\Exception $e) {
+                \Log::error('Error actualizando usuario', [
+                    'error' => $e->getMessage(),
+                    'user_id' => $user->id
+                ]);
+                
+                return back()
+                    ->withInput()
+                    ->withErrors(['error' => 'Error al actualizar el usuario: ' . $e->getMessage()]);
             }
-            $user->profile_photo = null;
         }
-        
-        if ($request->hasFile('profile_photo')) {
-            $imageName = time().'.'.$request->profile_photo->extension();
-            $filePath = $request->profile_photo->storeAs('profileImages', $imageName);
-        
-            $fullPath = storage_path('app/' . $filePath);
-            if (file_exists($fullPath)) {
-                chmod($fullPath, 0644); 
-                chown($fullPath, 'www-data'); 
-            }
-        
-            if ($user->profile_photo) {
-                $oldPhotoPath = storage_path('app/profileImages/' . $user->profile_photo);
-                if (file_exists($oldPhotoPath)) {
-                    unlink($oldPhotoPath);
-                }
-            }
-        
-            $user->profile_photo = $imageName;
-        }
-        
-        $user->name = $request->name;
-        $user->email = $request->email;
-        if ($request->filled('password')) {
-            $user->password = Hash::make($request->password);
-        }
-        $user->save();
-        
-        return redirect()->route('admin.users.index');
-    }
 
     public function destroy(User $user)
     {

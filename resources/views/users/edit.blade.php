@@ -60,7 +60,6 @@
                                 <select id="role" class="form-control @error('role') is-invalid @enderror" name="role" required>
                                     <option value="user" {{ $user->role == 'user' ? 'selected' : '' }}>User</option>
                                     <option value="admin" {{ $user->role == 'admin' ? 'selected' : '' }}>Admin</option>
-                                    <option value="superadmin" {{ $user->role == 'superadmin' ? 'selected' : '' }}>Superadmin</option>
                                 </select>
                                 @error('role')
                                     <span class="invalid-feedback" role="alert">
